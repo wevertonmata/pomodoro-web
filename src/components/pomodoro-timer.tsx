@@ -8,9 +8,6 @@ const bellStart = require('../sounds/bellstart.mp3');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bellFinish = require('../sounds/bellfinish.mp3');
 
-const audioStartWorking = new Audio(bellStart);
-const audioFinishWorking = new Audio(bellFinish);
-
 interface Props {
   pomodoroTime: number;
   shortRestTime: number;
@@ -24,9 +21,12 @@ export function PomodoroTimer(props: Props): JSX.Element {
   const [working, setWorking] = useState(false);
   const [resting, setResting] = useState(false);
 
+  const [start] = useState(new Audio(bellStart));
+  const [finish] = useState(new Audio(bellFinish));
+
   useEffect(() => {
     if (working) document.body.classList.add('working');
-    if (working) document.body.classList.remove('working');
+    if (!working) document.body.classList.remove('working');
   }, [working]);
 
   useInterval(
@@ -41,7 +41,7 @@ export function PomodoroTimer(props: Props): JSX.Element {
     setWorking(true);
     setResting(false);
     setMainTime(props.pomodoroTime);
-    audioStartWorking.play();
+    start.play();
   };
 
   const configureRest = (long: boolean) => {
@@ -54,18 +54,14 @@ export function PomodoroTimer(props: Props): JSX.Element {
     } else {
       setMainTime(props.shortRestTime);
     }
-    audioFinishWorking.play();
+    finish.play();
   };
   return (
     <div className="pomodoro">
       <h2>You are: working</h2>
       <Timer mainTimer={mainTime} />
       <div className="controls">
-        <Button
-          text="Start"
-          className="start"
-          onClick={() => configureWork()}
-        ></Button>
+        <Button text="Start" className="start" onClick={() => configureWork()}></Button>
         <Button
           text={timeCounting ? 'Pause' : 'Play'}
           className={!working && !resting ? 'hidden' : ''}
